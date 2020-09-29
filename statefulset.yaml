@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {metadata_name}
+spec:
+  selector:
+    matchLabels:
+        app: {app_id}
+  serviceName: {service_name}
+  replicas: 3
+  template:
+    metadata:
+        labels:
+            app: {app_id}
+    spec:
+      containers:
+        - name: cep-scd
+          image: {image_registry_loc}
+          ports:
+            - containerPort: 8084
+            - containerPort: 8081
+            - containerPort: 8082
+            - containerPort: 8083
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - mountPath: /sys/fs/cgroup
+              name: init
+              readOnly: true
+            - mountPath: {log_dir_location}
+              name: {volume_name}
+      volumes:
+        - name: init
+          hostPath:
+            path: /sys/fs/cgroup
+      initContainers:
+      - name: fix-the-volume-permission
+        image: busybox
+        command:
+        - sh
+        - -c
+        - chown -R 999:999 {log_dir_location}
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: {volume_name}
+          mountPath: {log_dir_location}
+      imagePullSecrets:
+        - name: gitlab-secreth
+  volumeClaimTemplates:
+  - metadata:
+      name: {volume_name}
+    spec:
+     accessModes:
+      - ReadWriteOnce
+     storageClassName: openebs-cstor-disk
+     resources:
+       requests:
+         storage: 5Gi
