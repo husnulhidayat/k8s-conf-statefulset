@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {label_id}
+  namespace: {namespace_name}
+  labels:
+    app: {label_id}
+  annotations:
+    volume.beta.kubernetes.io/storage-class: "openebs-cstor-disk"
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
