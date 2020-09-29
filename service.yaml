@@ -1,0 +1,24 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: {name}
+  namespace: {namespace_name}
+  annotations:
+    metallb.universe.tf/allow-shared-ip: shared-{ip}
+spec:
+  ports:
+    - name: {name_service_1}
+      protocol: TCP
+      port: 8081
+      targetPort: 8081
+    - name: {name_service_2}
+      protocol: TCP
+      port: 8082
+      targetPort: 8082
+  selector:
+    app: {app_id}
+  type: LoadBalancer
+status:
+  loadBalancer:
+    ingress:
+      - hostname: localhost
